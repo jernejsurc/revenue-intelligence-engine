@@ -21,7 +21,7 @@ Portfolio project by Jernej Surc. A 100% free-tier commercial intelligence syste
 - `analytics_queries.sql` — Phase 2: pipeline velocity, KAM expansion readiness, win-rate/tier elasticity
 - `make_payload_template.json` — Phase 3: JSON payloads between HubSpot, Make, Sheets, Neon
 - `make_scenario_blueprint.json` — Phase 3: importable Make.com scenario (Import Blueprint in Make UI; do not run/edit locally)
-- `powerbi_measures.dax` — Phase 4: Weighted Pipeline ARR, Avg Days to Close, Expansion Readiness Index, ICP Conversion %
+- `powerbi_measures.dax` — Phase 4: Weighted Pipeline ARR, Avg Days to Close, Expansion Readiness Index, ICP Conversion %, Snapshot Date + Avg Days in Pipeline (Open) anchored to the 2026-07-01 snapshot
 - `.env.example` — copy to `.env`, set `DATABASE_URL`
 
 ## Setup & Run

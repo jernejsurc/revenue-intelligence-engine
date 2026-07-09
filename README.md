@@ -44,7 +44,7 @@ Automates lead enrichment with AI (Claude assigns every inbound lead an ICP scor
 | `analytics_queries.sql` | Query A: pipeline velocity · Query B: KAM expansion readiness · Query C: win-rate & tier elasticity |
 | `make_payload_template.json` | Exact JSON contract at every Make.com hop |
 | `make_scenario_blueprint.json` | Importable Make.com scenario blueprint (validated against Make's schema) |
-| `powerbi_measures.dax` | Weighted Pipeline ARR, Avg Days to Close, Expansion Readiness Index, ICP Conversion % |
+| `powerbi_measures.dax` | Weighted Pipeline ARR, Avg Days to Close, Expansion Readiness Index, ICP Conversion %, snapshot-anchored open-pipeline aging |
 | `EXECUTIVE_SUMMARY.md` | One-page project brief for recruiters & hiring managers |
 | `CLAUDE.md` | Project guidelines for Claude Code |
 

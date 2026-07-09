@@ -4,6 +4,9 @@
 // Model: Power BI Desktop connected to Neon PostgreSQL.
 // Tables: accounts_and_leads (1) --* commercial_deals
 //   (relationship: accounts_and_leads[lead_id] -> commercial_deals[account_id])
+// Reporting snapshot: 1 July 2026 (FY26 Q2 close) — matches the
+// SNAPSHOT anchor in seed_data.py and analytics_queries.sql.
+// Never use TODAY()/NOW() in this model; anchor to [Snapshot Date].
 // ============================================================
 
 // ------------------------------------------------------------
@@ -68,6 +71,28 @@ VAR ConvertedLeads =
     )
 RETURN
     DIVIDE ( COUNTROWS ( ConvertedLeads ), COUNTROWS ( HighICPLeads ), 0 )
+
+// ------------------------------------------------------------
+// 5. Snapshot-anchored measures
+// The dataset is a fixed snapshot (1 July 2026 = FY26 Q2 close).
+// Open-deal aging must measure against this anchor, not TODAY(),
+// or pipeline ages inflate every day after the data was seeded.
+// ------------------------------------------------------------
+Snapshot Date =
+DATE ( 2026, 7, 1 )
+
+Avg Days in Pipeline (Open) =
+AVERAGEX (
+    FILTER (
+        commercial_deals,
+        ISBLANK ( commercial_deals[close_date] )
+    ),
+    DATEDIFF (
+        DATEVALUE ( commercial_deals[created_at] ),
+        [Snapshot Date],
+        DAY
+    )
+)
 
 // ------------------------------------------------------------
 // Supporting measures (used on dashboard cards/tooltips)
