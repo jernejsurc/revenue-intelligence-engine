@@ -25,9 +25,13 @@ A Make.com scenario watches HubSpot for new leads and sends each one to the Clau
 | BI & data modeling | DAX measures: weighted pipeline ARR, expansion index, ICP conversion |
 | Commercial judgment | Metrics chosen to answer real pricing, BDR, and KAM decisions |
 
-## Results (on seeded dataset of 150 accounts, ~250 deals)
+## The scenario behind the data
 
-Lead scoring latency drops from a manual review cycle to under 60 seconds per lead. The expansion query surfaces ~20 upgrade-ready accounts (health score >80 on lower tiers) ranked by weighted ARR upside. Win-rate elasticity analysis shows conversion by tier × deal size — the exact table a pricing review starts from. Operating cost: $0/month.
+The dataset models **Adriatic Analytics**, a fictional Ljubljana-based B2B SaaS vendor selling pipeline analytics to mid-market tech companies on a four-tier pricing ladder ($6K–$480K ACV). It covers 18 months of GTM history — January 2025 through the FY26 Q2 close (snapshot: 1 July 2026): 150 accounts, 248 deals. The data is calibrated to real B2B SaaS benchmarks — 82–101 day sales cycles that lengthen with company size, 50–66% late-stage win rates, and two-thirds of closes landing in the final week of a fiscal quarter — so every query output reads like an actual pipeline review, and it's deterministic, so the numbers reproduce exactly in a live walkthrough.
+
+## Results (on the seeded dataset)
+
+Lead scoring latency drops from a manual review cycle to under 60 seconds per lead. The expansion query surfaces 22 upgrade-ready accounts (health score >80 on lower tiers) ranked by weighted ARR upside. Win-rate elasticity analysis shows conversion by tier × deal size — the exact table a pricing review starts from. Operating cost: $0/month.
 
 ## One line per audience
 

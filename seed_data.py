@@ -9,7 +9,9 @@ Usage:
     python seed_data.py
 
 Idempotent: truncates both tables, then reloads. Deterministic (seed=42)
-so downstream analytics results are reproducible.
+and anchored to a fixed reporting snapshot (1 July 2026 = FY26 Q2 close,
+history back to January 2025) so downstream analytics results are
+reproducible and dates land on real fiscal quarters.
 """
 
 from __future__ import annotations
@@ -25,6 +27,15 @@ from dotenv import load_dotenv
 random.seed(42)
 
 N_ACCOUNTS = 150
+
+# Reporting snapshot: the morning after FY26 Q2 close. Fixed rather than
+# datetime.now() so every reseed reproduces identical dates and the
+# quarter-end close clustering lands on real fiscal quarter boundaries.
+SNAPSHOT = datetime(2026, 7, 1, tzinfo=timezone.utc)
+
+# Separate stream for quarter-end snapping so it never disturbs the main
+# seed=42 stream that drives account attributes and deal values.
+_QSNAP = random.Random(7)
 
 # ---------------------------------------------------------------- mock config
 INDUSTRIES = [
@@ -75,6 +86,22 @@ SNIPPET_TEMPLATES = [
 
 def rand_dt_between(start: datetime, end: datetime) -> datetime:
     return start + timedelta(seconds=random.randint(0, int((end - start).total_seconds())))
+
+
+def quarter_end(d: date) -> date:
+    m = ((d.month - 1) // 3 + 1) * 3  # 3, 6, 9, 12
+    return date(d.year + m // 12, m % 12 + 1, 1) - timedelta(days=1)
+
+
+def snap_to_quarter_end(close: date, opened: date, today: date) -> date:
+    """Real pipelines cluster closes in the final days of a quarter (rep
+    incentives, discount deadlines). Pull ~45% of closes into that window."""
+    qe = quarter_end(close)
+    if _QSNAP.random() < 0.45 and qe <= today - timedelta(days=1):
+        snapped = qe - timedelta(days=_QSNAP.randint(0, 6))
+        if snapped >= opened + timedelta(days=14):
+            return snapped
+    return close
 
 
 def make_accounts(now: datetime) -> list[tuple]:
@@ -138,6 +165,7 @@ def make_deals(accounts: list[tuple], ids: list[int], now: datetime) -> list[tup
                     else random.randint(45, 180)
                 close_date = min((opened + timedelta(days=cycle)).date(),
                                  now.date() - timedelta(days=1))
+                close_date = snap_to_quarter_end(close_date, opened.date(), now.date())
             else:
                 stage = random.choice(STAGES_OPEN)
                 win_prob = round(random.uniform(*STAGE_WIN_PROB[stage]), 3)
@@ -162,7 +190,7 @@ def main() -> None:
     if "sslmode" not in dsn:
         dsn += ("&" if "?" in dsn else "?") + "sslmode=require"  # Neon requires SSL
 
-    now = datetime.now(timezone.utc)
+    now = SNAPSHOT
     accounts = make_accounts(now)
 
     with psycopg.connect(dsn) as conn:

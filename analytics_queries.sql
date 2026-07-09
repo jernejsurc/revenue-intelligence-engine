@@ -43,7 +43,9 @@ open_stage_age AS (
         company_size_bracket,
         deal_stage,
         COUNT(*)                                              AS open_deals,
-        ROUND(AVG(EXTRACT(EPOCH FROM (now() - created_at)) / 86400), 1) AS avg_days_in_pipeline
+        -- Ages measured against the reporting snapshot (FY26 Q2 close),
+        -- matching seed_data.py's SNAPSHOT anchor, so results are stable.
+        ROUND(AVG(EXTRACT(EPOCH FROM (TIMESTAMPTZ '2026-07-01 00:00:00+00' - created_at)) / 86400), 1) AS avg_days_in_pipeline
     FROM sized_deals
     WHERE close_date IS NULL
     GROUP BY company_size_bracket, deal_stage

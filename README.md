@@ -4,6 +4,19 @@ An end-to-end commercial intelligence system built entirely on free tiers. Inbou
 
 **Built by Jernej Surc** — RevOps / GTM / Revenue Analytics. Demonstrates CRM architecture, workflow automation, production SQL, AI prompt engineering, and BI modeling in one working system.
 
+## Business scenario
+
+The dataset models **Adriatic Analytics**, a fictional Ljubljana-based B2B SaaS vendor selling a pipeline-analytics platform to mid-market tech companies across ten verticals (FinTech, HealthTech, Cybersecurity, DevTools, and others). Pricing runs four tiers, from Starter ($6–18K ACV) to Enterprise ($150–480K ACV). The company moved its GTM tracking off spreadsheets and into HubSpot in **January 2025**; the warehouse holds every account and deal from then through the **FY26 Q2 close** (reporting snapshot: 1 July 2026) — 150 accounts and 248 deals over 18 months.
+
+The mock data is calibrated to published B2B SaaS benchmarks so the analytics read like a genuine pipeline review:
+
+- **Sales cycles average 82–101 days**, lengthening with company size — in line with the 2–3 month norm for mid-market ACV deals.
+- **Late-stage win rates land in the 50–66% band** across tiers, and correlate with the AI's ICP score by construction.
+- **Two-thirds of closes cluster in the final week of a fiscal quarter** — the classic rep-incentive pile-up every RevOps team will recognize.
+- **~30% of Starter/Growth customers show high expansion intent** (health score >80) within their first year, feeding the KAM upsell queue.
+
+Everything is deterministic (`seed=42`) and anchored to the fixed snapshot date, so every reseed reproduces the exact numbers quoted here.
+
 ## Architecture
 
 ```
@@ -27,7 +40,7 @@ Automates lead enrichment with AI (Claude assigns every inbound lead an ICP scor
 | File | Purpose |
 |---|---|
 | `schema.sql` | PostgreSQL DDL — 2 tables, constraints, analytics indexes |
-| `seed_data.py` | psycopg v3 seed script — 150 deterministic mock accounts + ~250 deals |
+| `seed_data.py` | psycopg v3 seed script — 150 accounts + 248 deals, Jan 2025 → Jul 2026, quarter-end close clustering |
 | `analytics_queries.sql` | Query A: pipeline velocity · Query B: KAM expansion readiness · Query C: win-rate & tier elasticity |
 | `make_payload_template.json` | Exact JSON contract at every Make.com hop |
 | `make_scenario_blueprint.json` | Importable Make.com scenario blueprint (validated against Make's schema) |

@@ -45,7 +45,7 @@ python seed_data.py
 
 - Python: psycopg v3 only (never psycopg2), parameterized queries, type hints, `python-dotenv` for secrets. Never hardcode credentials.
 - SQL: PostgreSQL 16 syntax, lowercase snake_case identifiers, explicit constraints and indexes.
-- Mock data: deterministic (`random.seed(42)`) so analytics results are reproducible in interviews.
+- Mock data: deterministic (`random.seed(42)`) and anchored to a fixed reporting snapshot (1 July 2026 = FY26 Q2 close; history from January 2025) so analytics results are reproducible in interviews. Closed deals cluster at fiscal quarter ends by design. Query A measures open-deal age against the same snapshot, not `now()`.
 - Deal stages: Discovery → Qualification → Proposal → Negotiation → Closed Won / Closed Lost.
 - Contract tiers: Starter, Growth, Scale, Enterprise.
 
