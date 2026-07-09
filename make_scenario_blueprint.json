@@ -1,0 +1,95 @@
+{
+  "name": "Revenue Acceleration Engine — AI Lead Scoring",
+  "flow": [
+    {
+      "id": 1,
+      "module": "hubspotcrm:WatchCRMObjects",
+      "version": 1,
+      "parameters": { "objectType": "contact", "watch": "created" },
+      "mapper": {},
+      "metadata": { "designer": { "x": 0, "y": 0, "name": "1. HubSpot: Watch new leads (API v3)" } }
+    },
+    {
+      "id": 2,
+      "module": "anthropic-claude:createAMessage",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "model": "claude-haiku-4-5",
+        "max_tokens": "300",
+        "system": "You are a B2B SaaS ICP scoring engine. Score fit 0-100 against ICP: B2B SaaS, 50-1000 employees, revenue-team pain. Respond ONLY with valid JSON: {\"icp_score\": <int>, \"bdr_snippet\": \"<2 sentences, personalized, no fluff>\"}",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Company: {{1.properties.company}} | Industry: {{1.properties.industry}} | Employees: {{1.properties.numberofemployees}} | Source: {{1.properties.hs_object_source}}"
+          }
+        ]
+      },
+      "metadata": { "designer": { "x": 300, "y": 0, "name": "2. Claude: ICP score + BDR hook" } }
+    },
+    {
+      "id": 3,
+      "module": "json:ParseJSON",
+      "version": 1,
+      "parameters": {},
+      "mapper": { "json": "{{2.content[].text}}" },
+      "metadata": { "designer": { "x": 600, "y": 0, "name": "3. Parse Claude JSON" } }
+    },
+    {
+      "id": 4,
+      "module": "google-sheets:addRow",
+      "version": 2,
+      "parameters": { "mode": "select" },
+      "mapper": {
+        "values": {
+          "0": "{{now}}",
+          "1": "{{1.objectId}}",
+          "2": "{{1.properties.company}}",
+          "3": "{{1.properties.industry}}",
+          "4": "{{1.properties.numberofemployees}}",
+          "5": "{{3.icp_score}}",
+          "6": "{{3.bdr_snippet}}",
+          "7": "{{if(3.icp_score >= 75; \"BDR_PRIORITY\"; if(3.icp_score >= 50; \"NURTURE\"; \"DISQUALIFY\"))}}"
+        }
+      },
+      "metadata": { "designer": { "x": 900, "y": 0, "name": "4. Sheets: staging log + routing" } }
+    },
+    {
+      "id": 5,
+      "module": "postgres:Query",
+      "version": 2,
+      "parameters": {},
+      "mapper": {
+        "query": "INSERT INTO accounts_and_leads (company_name, industry, employee_count, icp_score, bdr_ai_snippet) VALUES ('{{1.properties.company}}', '{{1.properties.industry}}', {{1.properties.numberofemployees}}, {{3.icp_score}}, '{{3.bdr_snippet}}');"
+      },
+      "metadata": { "designer": { "x": 1200, "y": 0, "name": "5. Neon: insert system-of-record row" } }
+    },
+    {
+      "id": 6,
+      "module": "hubspotcrm:UpdateRecord",
+      "version": 1,
+      "parameters": { "objectType": "contact" },
+      "mapper": {
+        "objectId": "{{1.objectId}}",
+        "properties": {
+          "icp_score": "{{3.icp_score}}",
+          "bdr_outreach_hook": "{{3.bdr_snippet}}",
+          "lead_routing": "{{if(3.icp_score >= 75; \"BDR_PRIORITY\"; if(3.icp_score >= 50; \"NURTURE\"; \"DISQUALIFY\"))}}"
+        }
+      },
+      "metadata": { "designer": { "x": 1500, "y": 0, "name": "6. HubSpot: write back score + hook" } }
+    }
+  ],
+  "metadata": {
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "sequential": false,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false
+    }
+  }
+}

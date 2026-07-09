@@ -1,0 +1,98 @@
+// ============================================================
+// powerbi_measures.dax — Phase 4
+// Autonomous B2B Revenue Acceleration Engine
+// Model: Power BI Desktop connected to Neon PostgreSQL.
+// Tables: accounts_and_leads (1) --* commercial_deals
+//   (relationship: accounts_and_leads[lead_id] -> commercial_deals[account_id])
+// ============================================================
+
+// ------------------------------------------------------------
+// 1. Weighted Pipeline ARR
+// Expected value of the pipeline: each deal's ARR weighted by
+// its win probability (Closed Won = 1.0, Closed Lost = 0.0).
+// ------------------------------------------------------------
+Weighted Pipeline ARR =
+SUMX (
+    commercial_deals,
+    commercial_deals[arr_value] * commercial_deals[win_probability]
+)
+
+// ------------------------------------------------------------
+// 2. Average Days to Close
+// Mean sales-cycle length across closed deals only.
+// ------------------------------------------------------------
+Average Days to Close =
+AVERAGEX (
+    FILTER (
+        commercial_deals,
+        NOT ISBLANK ( commercial_deals[close_date] )
+    ),
+    DATEDIFF (
+        DATEVALUE ( commercial_deals[created_at] ),
+        commercial_deals[close_date],
+        DAY
+    )
+)
+
+// ------------------------------------------------------------
+// 3. Expansion Readiness Index
+// Portfolio-level KAM signal: average expansion score of won
+// accounts on upgradeable tiers, scaled 0-100. >60 = healthy
+// upsell runway; pairs with Query B's ranked account list.
+// ------------------------------------------------------------
+Expansion Readiness Index =
+VAR WonUpgradeable =
+    FILTER (
+        commercial_deals,
+        commercial_deals[deal_stage] = "Closed Won"
+            && commercial_deals[contract_tier] <> "Enterprise"
+    )
+RETURN
+    AVERAGEX ( WonUpgradeable, commercial_deals[expansion_signal_score] )
+
+// ------------------------------------------------------------
+// 4. ICP Conversion %
+// Share of high-fit leads (ICP >= 75) that produced at least one
+// Closed Won deal — measures whether AI scoring predicts revenue.
+// ------------------------------------------------------------
+ICP Conversion % =
+VAR HighICPLeads =
+    FILTER ( accounts_and_leads, accounts_and_leads[icp_score] >= 75 )
+VAR ConvertedLeads =
+    FILTER (
+        HighICPLeads,
+        CALCULATE (
+            COUNTROWS ( commercial_deals ),
+            commercial_deals[deal_stage] = "Closed Won"
+        ) > 0
+    )
+RETURN
+    DIVIDE ( COUNTROWS ( ConvertedLeads ), COUNTROWS ( HighICPLeads ), 0 )
+
+// ------------------------------------------------------------
+// Supporting measures (used on dashboard cards/tooltips)
+// ------------------------------------------------------------
+Total Won ARR =
+CALCULATE (
+    SUM ( commercial_deals[arr_value] ),
+    commercial_deals[deal_stage] = "Closed Won"
+)
+
+Overall Win Rate % =
+VAR Closed =
+    FILTER (
+        commercial_deals,
+        commercial_deals[deal_stage] IN { "Closed Won", "Closed Lost" }
+    )
+RETURN
+    DIVIDE (
+        COUNTROWS ( FILTER ( Closed, commercial_deals[deal_stage] = "Closed Won" ) ),
+        COUNTROWS ( Closed ),
+        0
+    )
+
+Open Pipeline ARR =
+CALCULATE (
+    SUM ( commercial_deals[arr_value] ),
+    NOT commercial_deals[deal_stage] IN { "Closed Won", "Closed Lost" }
+)

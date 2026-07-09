@@ -1,0 +1,14 @@
+# Secrets — never commit the real connection string
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Power BI local files
+*.pbix.bak
+
+# OS
+.DS_Store
+Thumbs.db

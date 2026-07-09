@@ -1,0 +1,71 @@
+{
+  "_description": "Payload contract for the Make.com scenario: HubSpot (trigger) -> Claude (scoring) -> Google Sheets (staging) -> Neon PostgreSQL (system of record). Each key shows the exact JSON at that hop.",
+  "_scenario_flow": "1_hubspot_webhook_in -> 2_claude_api_request -> 3_claude_api_response -> 4_google_sheets_row -> 5_neon_sql_insert -> 6_hubspot_writeback",
+
+  "1_hubspot_webhook_in": {
+    "_module": "HubSpot > Watch CRM Objects (Contacts/Companies, API v3)",
+    "objectId": 158101,
+    "properties": {
+      "company": "NovaMetrics",
+      "industry": "FinTech",
+      "numberofemployees": "240",
+      "email": "cto@novametrics.io",
+      "lifecyclestage": "lead",
+      "hs_object_source": "FORM"
+    },
+    "occurredAt": "2026-07-09T08:42:11Z"
+  },
+
+  "2_claude_api_request": {
+    "_module": "Anthropic Claude > Create a Message",
+    "model": "claude-haiku-4-5",
+    "max_tokens": 300,
+    "system": "You are a B2B SaaS ICP scoring engine. Score fit 0-100 against ICP: B2B SaaS, 50-1000 employees, revenue-team pain. Respond ONLY with valid JSON: {\"icp_score\": <int>, \"bdr_snippet\": \"<2 sentences, personalized, no fluff>\"}",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Company: NovaMetrics | Industry: FinTech | Employees: 240 | Source: inbound form | Contact role: CTO"
+      }
+    ]
+  },
+
+  "3_claude_api_response": {
+    "_module": "Parsed via Make JSON module",
+    "icp_score": 87,
+    "bdr_snippet": "Noticed NovaMetrics is scaling its FinTech platform past 240 employees — teams at that stage usually outgrow manual pipeline reporting. We help RevOps automate deal-stage analytics so forecasts stop living in spreadsheets."
+  },
+
+  "4_google_sheets_row": {
+    "_module": "Google Sheets > Add a Row (staging + lookup rules)",
+    "spreadsheet": "Lead_Enrichment_Staging",
+    "sheet": "scored_leads",
+    "values": {
+      "A_timestamp": "2026-07-09T08:42:15Z",
+      "B_hubspot_object_id": 158101,
+      "C_company_name": "NovaMetrics",
+      "D_industry": "FinTech",
+      "E_employee_count": 240,
+      "F_icp_score": 87,
+      "G_bdr_ai_snippet": "Noticed NovaMetrics is scaling its FinTech platform past 240 employees...",
+      "H_routing_rule": "=IF(F2>=75,\"BDR_PRIORITY\",IF(F2>=50,\"NURTURE\",\"DISQUALIFY\"))"
+    }
+  },
+
+  "5_neon_sql_insert": {
+    "_module": "PostgreSQL > Execute a Query (Neon, SSL required)",
+    "query": "INSERT INTO accounts_and_leads (company_name, industry, employee_count, icp_score, bdr_ai_snippet) VALUES ($1, $2, $3, $4, $5) RETURNING lead_id;",
+    "parameters": ["NovaMetrics", "FinTech", 240, 87, "Noticed NovaMetrics is scaling its FinTech platform past 240 employees..."]
+  },
+
+  "6_hubspot_writeback": {
+    "_module": "HubSpot > Update a CRM Object (API v3)",
+    "objectId": 158101,
+    "properties": {
+      "icp_score": "87",
+      "bdr_outreach_hook": "Noticed NovaMetrics is scaling its FinTech platform past 240 employees...",
+      "lead_routing": "BDR_PRIORITY"
+    }
+  },
+
+  "_ops_budget_note": "6 operations per lead x ~150 leads/mo = ~900 ops, inside Make.com free tier (1,000 ops/mo)."
+}
