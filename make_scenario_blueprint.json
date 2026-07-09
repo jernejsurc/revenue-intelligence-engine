@@ -60,7 +60,7 @@
       "version": 2,
       "parameters": {},
       "mapper": {
-        "query": "INSERT INTO accounts_and_leads (company_name, industry, employee_count, icp_score, bdr_ai_snippet) VALUES ('{{1.properties.company}}', '{{1.properties.industry}}', {{1.properties.numberofemployees}}, {{3.icp_score}}, '{{3.bdr_snippet}}');"
+        "query": "INSERT INTO accounts_and_leads (company_name, industry, employee_count, icp_score, bdr_ai_snippet) VALUES ('{{replace(1.properties.company; \"'\"; \"''\")}}', '{{replace(1.properties.industry; \"'\"; \"''\")}}', {{1.properties.numberofemployees}}, {{3.icp_score}}, '{{replace(3.bdr_snippet; \"'\"; \"''\")}}');"
       },
       "metadata": { "designer": { "x": 1200, "y": 0, "name": "5. Neon: insert system-of-record row" } }
     },
