@@ -69,7 +69,15 @@ psql "$DATABASE_URL" -f analytics_queries.sql
 5. **PostgreSQL > Execute a Query** (`postgres:Query`) — insert into Neon `accounts_and_leads` (SSL).
 6. **HubSpot > Update a Record** (`hubspotcrm:UpdateRecord`) — write score, hook, and routing back to the lead.
 
-Budget: ~6 ops/lead → ~150 leads/month inside the 1,000-op free tier.
+Budget: ~6 ops/lead → ~150 leads/month inside the 1,000-op free tier. Note that every scheduled poll costs 1 op even with no new leads — at a 2-hour interval that's ~360 ops/month of polling; a 15-minute interval (~2,880/month) blows the free tier on its own.
+
+**Deployment notes (from the live build):**
+
+- Create the three custom contact properties in HubSpot **before** activating: `icp_score` (number), `bdr_outreach_hook` (multi-line text), `lead_routing` (dropdown: BDR_PRIORITY / NURTURE / DISQUALIFY).
+- HubSpot's default contact property for company size is `numemployees` — an enumeration of ranges (`"100-500"`), not a number. The blueprint converts it to the range's lower bound for the integer `employee_count` column.
+- The PostgreSQL connection needs **Encrypt = Yes** (Neon refuses non-SSL) and the module's *"Continue the execution even if no rows"* = Yes, or the route stops after the INSERT and the writeback never runs.
+- Use a dated Claude model ID (`claude-haiku-4-5-20251001`) — Make validates against the connection's model list, which doesn't include aliases.
+- After import, open module 1 once and set **"Choose where to start"** — a polling trigger can't run until its cursor is initialized (this must be done in the UI).
 
 ## Power BI dashboard (3 pages)
 

@@ -5,7 +5,12 @@
       "id": 1,
       "module": "hubspotcrm:WatchCRMObjects",
       "version": 1,
-      "parameters": { "objectType": "contact", "watch": "created" },
+      "parameters": {
+        "limit": 10,
+        "objectType": "contacts",
+        "watchPattern": "created",
+        "outputProperties": ["email", "firstname", "lastname", "company", "industry", "numemployees", "lifecyclestage", "hs_object_source"]
+      },
       "mapper": {},
       "metadata": { "designer": { "x": 0, "y": 0, "name": "1. HubSpot: Watch new leads (API v3)" } }
     },
@@ -15,13 +20,14 @@
       "version": 1,
       "parameters": {},
       "mapper": {
-        "model": "claude-haiku-4-5",
+        "model": "claude-haiku-4-5-20251001",
         "max_tokens": "300",
-        "system": "You are a B2B SaaS ICP scoring engine. Score fit 0-100 against ICP: B2B SaaS, 50-1000 employees, revenue-team pain. Respond ONLY with valid JSON: {\"icp_score\": <int>, \"bdr_snippet\": \"<2 sentences, personalized, no fluff>\"}",
+        "system": "You are a B2B SaaS ICP scoring engine. Score fit 0-100 against ICP: B2B SaaS, 50-1000 employees, revenue-team pain. Respond ONLY with raw JSON, no code fences, no backticks, no commentary: {\"icp_score\": <int>, \"bdr_snippet\": \"<2 sentences, personalized, no fluff>\"}",
         "messages": [
           {
             "role": "user",
-            "content": "Company: {{1.properties.company}} | Industry: {{1.properties.industry}} | Employees: {{1.properties.numberofemployees}} | Source: {{1.properties.hs_object_source}}"
+            "inputType": "single",
+            "content": "Company: {{1.properties.company}} | Industry: {{1.properties.industry}} | Employees: {{1.properties.numemployees}} | Source: {{1.properties.hs_object_source}}"
           }
         ]
       },
@@ -32,21 +38,30 @@
       "module": "json:ParseJSON",
       "version": 1,
       "parameters": {},
-      "mapper": { "json": "{{2.content[].text}}" },
+      "mapper": { "json": "{{trim(replace(2.content[].text; \"/```(json)?/g\"; \"\"))}}" },
       "metadata": { "designer": { "x": 600, "y": 0, "name": "3. Parse Claude JSON" } }
     },
     {
       "id": 4,
       "module": "google-sheets:addRow",
       "version": 2,
-      "parameters": { "mode": "select" },
+      "parameters": {},
       "mapper": {
+        "mode": "select",
+        "from": "drive",
+        "spreadsheetId": "/REPLACE_WITH_YOUR_SPREADSHEET_ID",
+        "sheetId": "scored_leads",
+        "includesHeaders": true,
+        "useColumnHeaders": false,
+        "insertDataOption": "INSERT_ROWS",
+        "valueInputOption": "USER_ENTERED",
+        "insertUnformatted": false,
         "values": {
           "0": "{{now}}",
-          "1": "{{1.objectId}}",
+          "1": "{{1.id}}",
           "2": "{{1.properties.company}}",
           "3": "{{1.properties.industry}}",
-          "4": "{{1.properties.numberofemployees}}",
+          "4": "{{1.properties.numemployees}}",
           "5": "{{3.icp_score}}",
           "6": "{{3.bdr_snippet}}",
           "7": "{{if(3.icp_score >= 75; \"BDR_PRIORITY\"; if(3.icp_score >= 50; \"NURTURE\"; \"DISQUALIFY\"))}}"
@@ -58,9 +73,9 @@
       "id": 5,
       "module": "postgres:Query",
       "version": 2,
-      "parameters": {},
+      "parameters": { "continueWhenNoRes": true, "isToManageDataInSharedTransaction": true },
       "mapper": {
-        "query": "INSERT INTO accounts_and_leads (company_name, industry, employee_count, icp_score, bdr_ai_snippet) VALUES ('{{replace(1.properties.company; \"'\"; \"''\")}}', '{{replace(1.properties.industry; \"'\"; \"''\")}}', {{1.properties.numberofemployees}}, {{3.icp_score}}, '{{replace(3.bdr_snippet; \"'\"; \"''\")}}');"
+        "command": "INSERT INTO accounts_and_leads (company_name, industry, employee_count, icp_score, bdr_ai_snippet) VALUES ('{{replace(1.properties.company; \"'\"; \"''\")}}', '{{replace(1.properties.industry; \"'\"; \"''\")}}', {{ifempty(replace(first(split(1.properties.numemployees; \"-\")); \"+\"; \"\"); 50)}}, {{3.icp_score}}, '{{replace(3.bdr_snippet; \"'\"; \"''\")}}') RETURNING lead_id;"
       },
       "metadata": { "designer": { "x": 1200, "y": 0, "name": "5. Neon: insert system-of-record row" } }
     },
@@ -68,9 +83,12 @@
       "id": 6,
       "module": "hubspotcrm:UpdateRecord",
       "version": 1,
-      "parameters": { "objectType": "contact" },
+      "parameters": {},
       "mapper": {
-        "objectId": "{{1.objectId}}",
+        "objectType": "contact",
+        "updateRecordFlag": "updateRecord",
+        "searchType": "byID",
+        "id": "{{1.id}}",
         "properties": {
           "icp_score": "{{3.icp_score}}",
           "bdr_outreach_hook": "{{3.bdr_snippet}}",
@@ -81,6 +99,7 @@
     }
   ],
   "metadata": {
+    "instant": false,
     "version": 1,
     "scenario": {
       "roundtrips": 1,

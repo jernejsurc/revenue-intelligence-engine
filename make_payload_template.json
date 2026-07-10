@@ -3,12 +3,12 @@
   "_scenario_flow": "1_hubspot_webhook_in -> 2_claude_api_request -> 3_claude_api_response -> 4_google_sheets_row -> 5_neon_sql_insert -> 6_hubspot_writeback",
 
   "1_hubspot_webhook_in": {
-    "_module": "HubSpot > Watch CRM Objects (Contacts/Companies, API v3)",
-    "objectId": 158101,
+    "_module": "HubSpot > Watch CRM Objects (Contacts, API v3). Output key is `id`, not `objectId`. `numemployees` is HubSpot's default contact property — an enumeration of ranges, not a number.",
+    "id": 158101,
     "properties": {
       "company": "NovaMetrics",
       "industry": "FinTech",
-      "numberofemployees": "240",
+      "numemployees": "100-500",
       "email": "cto@novametrics.io",
       "lifecyclestage": "lead",
       "hs_object_source": "FORM"
@@ -17,10 +17,10 @@
   },
 
   "2_claude_api_request": {
-    "_module": "Anthropic Claude > Create a Message",
-    "model": "claude-haiku-4-5",
+    "_module": "Anthropic Claude > Create a Message (message needs inputType: single)",
+    "model": "claude-haiku-4-5-20251001",
     "max_tokens": 300,
-    "system": "You are a B2B SaaS ICP scoring engine. Score fit 0-100 against ICP: B2B SaaS, 50-1000 employees, revenue-team pain. Respond ONLY with valid JSON: {\"icp_score\": <int>, \"bdr_snippet\": \"<2 sentences, personalized, no fluff>\"}",
+    "system": "You are a B2B SaaS ICP scoring engine. Score fit 0-100 against ICP: B2B SaaS, 50-1000 employees, revenue-team pain. Respond ONLY with raw JSON, no code fences, no backticks, no commentary: {\"icp_score\": <int>, \"bdr_snippet\": \"<2 sentences, personalized, no fluff>\"}",
     "messages": [
       {
         "role": "user",
@@ -52,14 +52,13 @@
   },
 
   "5_neon_sql_insert": {
-    "_module": "PostgreSQL > Execute a Query (Neon, SSL required)",
-    "query": "INSERT INTO accounts_and_leads (company_name, industry, employee_count, icp_score, bdr_ai_snippet) VALUES ($1, $2, $3, $4, $5) RETURNING lead_id;",
-    "parameters": ["NovaMetrics", "FinTech", 240, 87, "Noticed NovaMetrics is scaling its FinTech platform past 240 employees..."]
+    "_module": "PostgreSQL > Execute a query (advanced) — field is named Command; set Encrypt=Yes in the connection (Neon requires SSL) and 'continue even if no rows'=Yes so the route reaches module 6. Employee range converts to its lower bound (100-500 -> 100); single quotes doubled via replace().",
+    "command": "INSERT INTO accounts_and_leads (company_name, industry, employee_count, icp_score, bdr_ai_snippet) VALUES ('NovaMetrics', 'FinTech', 100, 87, 'Noticed NovaMetrics is scaling its FinTech platform...') RETURNING lead_id;"
   },
 
   "6_hubspot_writeback": {
-    "_module": "HubSpot > Update a CRM Object (API v3)",
-    "objectId": 158101,
+    "_module": "HubSpot > Update a Record (searchType: byID)",
+    "id": 158101,
     "properties": {
       "icp_score": "87",
       "bdr_outreach_hook": "Noticed NovaMetrics is scaling its FinTech platform past 240 employees...",
