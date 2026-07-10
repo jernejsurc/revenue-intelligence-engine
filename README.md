@@ -46,6 +46,7 @@ Automates lead enrichment with AI (Claude assigns every inbound lead an ICP scor
 | `make_scenario_blueprint.json` | Importable Make.com scenario blueprint (validated against Make's schema) |
 | `powerbi_measures.dax` | Weighted Pipeline ARR, Avg Days to Close, Expansion Readiness Index, ICP Conversion %, snapshot-anchored open-pipeline aging |
 | `EXECUTIVE_SUMMARY.md` | One-page project brief for recruiters & hiring managers |
+| `BUILD_STORY.md` | Honest build log: 11 real defects the live smoke test caught, and the fixes |
 | `CLAUDE.md` | Project guidelines for Claude Code |
 
 ## Quick start

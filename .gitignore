@@ -8,6 +8,8 @@ __pycache__/
 
 # Power BI local files
 *.pbix.bak
+# Quick-connect file contains the real Neon host — keep local
+revenue_engine.pbids
 
 # OS
 .DS_Store
