@@ -1,6 +1,6 @@
 # Executive Summary - Autonomous B2B Revenue Acceleration Engine
 
-**Jernej Surc · jaysurc@gmail.com**
+**Jernej Surc · jernej.surc@gmail.com**
 
 ## The 30-second pitch
 
