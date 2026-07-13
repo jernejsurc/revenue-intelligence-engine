@@ -82,6 +82,19 @@ Budget: ~6 ops/lead → ~150 leads/month inside the 1,000-op free tier. Note tha
 
 ## Power BI dashboard (3 pages)
 
-1. **Pipeline Command Center** — Weighted Pipeline ARR card, funnel by stage, velocity by company size (Query A).
-2. **KAM Expansion Radar** — Expansion Readiness Index gauge, ranked upsell table (Query B).
-3. **Pricing & Win-Rate Elasticity** — win-rate matrix by tier × deal size (Query C), ICP Conversion % trend.
+Built in Power BI Desktop (Import mode against Neon), styled with the included `adriatic_theme.json`, and validated cell-by-cell against SQL — every number below reproduces exactly on a reseed. Full model in `Intell Engine PowerBI.pbix`.
+
+### 1. Pipeline Command Center
+KPI cards (Weighted Pipeline ARR €15.3M, win rate 56.9%, 89.7-day avg cycle), deal funnel by stage, and sales-cycle length by company size — the "bigger closes slower" story in one glance (Query A).
+
+![Pipeline Command Center](screenshots/pipeline-command-center.png)
+
+### 2. KAM Expansion Radar
+Expansion Readiness Index gauge (61.4 vs target 60) and the ranked Monday-morning upsell queue: 22 upgrade-ready accounts sorted by weighted ARR upside (Query B).
+
+![KAM Expansion Radar](screenshots/kam-expansion-radar.png)
+
+### 3. Pricing & Win-Rate Elasticity
+Win-rate heat matrix by tier × deal size, won-vs-lost volumes per tier, and the ICP Conversion card (57.7%) proving the AI's scores predict revenue (Query C).
+
+![Pricing & Win-Rate Elasticity](screenshots/pricing-elasticity.png)
