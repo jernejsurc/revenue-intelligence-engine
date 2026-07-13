@@ -6,7 +6,7 @@ An end-to-end commercial intelligence system built entirely on free tiers. Inbou
 
 ## Business scenario
 
-The dataset models **Adriatic Analytics**, a fictional Ljubljana-based B2B SaaS vendor selling a pipeline-analytics platform to mid-market tech companies across ten verticals (FinTech, HealthTech, Cybersecurity, DevTools, and others). Pricing runs four tiers, from Starter ($6–18K ACV) to Enterprise ($150–480K ACV). The company moved its GTM tracking off spreadsheets and into HubSpot in **January 2025**; the warehouse holds every account and deal from then through the **FY26 Q2 close** (reporting snapshot: 1 July 2026) — 150 accounts and 248 deals over 18 months.
+The dataset models **Adriatic Analytics**, a fictional Ljubljana-based B2B SaaS vendor selling a pipeline-analytics platform to mid-market tech companies across ten verticals (FinTech, HealthTech, Cybersecurity, DevTools, and others). Pricing runs four tiers, from Starter (€6–18K ACV) to Enterprise (€150–480K ACV). The company moved its GTM tracking off spreadsheets and into HubSpot in **January 2025**; the warehouse holds every account and deal from then through the **FY26 Q2 close** (reporting snapshot: 1 July 2026) — 150 accounts and 248 deals over 18 months.
 
 The mock data is calibrated to published B2B SaaS benchmarks so the analytics read like a genuine pipeline review:
 
@@ -29,7 +29,7 @@ Power BI Desktop     ◄──  Neon PostgreSQL        ◄───────�
   expansion dashboards    commercial_deals             every hop (~6 ops/lead)
 ```
 
-Total cost: **$0/month** (HubSpot Free, Make.com 1,000 ops, Neon free serverless, Google Sheets, Power BI Desktop).
+Total cost: **€0/month** (HubSpot Free, Make.com 1,000 ops, Neon free serverless, Google Sheets, Power BI Desktop).
 
 ## What it does
 

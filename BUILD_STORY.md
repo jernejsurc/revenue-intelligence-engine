@@ -29,7 +29,7 @@ Also learned the hard way: a stale Make editor tab silently reverts API-pushed b
 
 ## Proof of life
 
-Final verified run (2026-07-10): HubSpot contact → Claude Haiku scored **85**, wrote a two-sentence personalized hook → routed **BDR_PRIORITY** → row staged in Google Sheets → inserted into Neon with `employee_count = 100` (from "100-500") and apostrophes intact → score, hook, and routing written back onto the HubSpot contact. Test data then cleaned up: Neon reseeded to exactly 150 accounts / 248 deals with the identical ARR fingerprint ($27,688,910.33), proving the deterministic dataset reproduces bit-for-bit.
+Final verified run (2026-07-10): HubSpot contact → Claude Haiku scored **85**, wrote a two-sentence personalized hook → routed **BDR_PRIORITY** → row staged in Google Sheets → inserted into Neon with `employee_count = 100` (from "100-500") and apostrophes intact → score, hook, and routing written back onto the HubSpot contact. Test data then cleaned up: Neon reseeded to exactly 150 accounts / 248 deals with the identical ARR fingerprint (€27,688,910.33), proving the deterministic dataset reproduces bit-for-bit.
 
 ## Ops-budget reality check
 

@@ -54,7 +54,7 @@ SELECT
     cv.company_size_bracket,
     cv.closed_deals,
     cv.avg_days_to_close,
-    cv.won_arr_per_cycle_day        AS pipeline_velocity_usd_per_day,
+    cv.won_arr_per_cycle_day        AS pipeline_velocity_eur_per_day,
     osa.deal_stage                  AS open_stage,
     osa.open_deals,
     osa.avg_days_in_pipeline
@@ -121,10 +121,10 @@ WITH closed AS (
     SELECT
         contract_tier,
         CASE
-            WHEN arr_value < 25000  THEN '1. <$25K'
-            WHEN arr_value < 75000  THEN '2. $25K-$75K'
-            WHEN arr_value < 150000 THEN '3. $75K-$150K'
-            ELSE                         '4. $150K+'
+            WHEN arr_value < 25000  THEN '1. <€25K'
+            WHEN arr_value < 75000  THEN '2. €25K-€75K'
+            WHEN arr_value < 150000 THEN '3. €75K-€150K'
+            ELSE                         '4. €150K+'
         END AS deal_size_bracket,
         deal_stage,
         arr_value
