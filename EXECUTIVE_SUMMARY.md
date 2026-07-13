@@ -1,10 +1,10 @@
-# Executive Summary — Autonomous B2B Revenue Acceleration Engine
+# Executive Summary - Autonomous B2B Revenue Acceleration Engine
 
 **Jernej Surc · jaysurc@gmail.com**
 
 ## The 30-second pitch
 
-"I built a revenue engine that does what a RevOps team of three does manually. When a lead comes into HubSpot, an AI scores it against our ideal customer profile and writes a personalized outreach hook in under a minute — before a BDR ever sees it. Every deal lands in a SQL warehouse where three production queries rank which existing customers are ready to upgrade, how fast deals move by segment, and where our pricing tiers win or lose. It all surfaces in a Power BI dashboard, and the whole stack runs on €0/month of free-tier tools."
+"I built a revenue engine that does what a RevOps team of three does manually. When a lead comes into HubSpot, an AI scores it against our ideal customer profile and writes a personalized outreach hook in under a minute - before a BDR ever sees it. Every deal lands in a SQL warehouse where three production queries rank which existing customers are ready to upgrade, how fast deals move by segment, and where our pricing tiers win or lose. It all surfaces in a Power BI dashboard, and the whole stack runs on €0/month of free-tier tools."
 
 ## The problem it solves
 
@@ -27,11 +27,11 @@ A Make.com scenario watches HubSpot for new leads and sends each one to the Clau
 
 ## The scenario behind the data
 
-The dataset models **Adriatic Analytics**, a fictional Ljubljana-based B2B SaaS vendor selling pipeline analytics to mid-market tech companies on a four-tier pricing ladder (€6K–€480K ACV). It covers 18 months of GTM history — January 2025 through the FY26 Q2 close (snapshot: 1 July 2026): 150 accounts, 248 deals. The data is calibrated to real B2B SaaS benchmarks — 82–101 day sales cycles that lengthen with company size, 50–66% late-stage win rates, and two-thirds of closes landing in the final week of a fiscal quarter — so every query output reads like an actual pipeline review, and it's deterministic, so the numbers reproduce exactly in a live walkthrough.
+The dataset models **Adriatic Analytics**, a fictional Ljubljana-based B2B SaaS vendor selling pipeline analytics to mid-market tech companies on a four-tier pricing ladder (€6K–€480K ACV). It covers 18 months of GTM history - January 2025 through the FY26 Q2 close (snapshot: 1 July 2026): 150 accounts, 248 deals. The data is calibrated to real B2B SaaS benchmarks - 82–101 day sales cycles that lengthen with company size, 50–66% late-stage win rates, and two-thirds of closes landing in the final week of a fiscal quarter - so every query output reads like an actual pipeline review, and it's deterministic, so the numbers reproduce exactly in a live walkthrough.
 
 ## Results (on the seeded dataset)
 
-Lead scoring latency drops from a manual review cycle to under 60 seconds per lead. The expansion query surfaces 22 upgrade-ready accounts (health score >80 on lower tiers) ranked by weighted ARR upside. Win-rate elasticity analysis shows conversion by tier × deal size — the exact table a pricing review starts from. Operating cost: €0/month.
+Lead scoring latency drops from a manual review cycle to under 60 seconds per lead. The expansion query surfaces 22 upgrade-ready accounts (health score >80 on lower tiers) ranked by weighted ARR upside. Win-rate elasticity analysis shows conversion by tier × deal size - the exact table a pricing review starts from. Operating cost: €0/month.
 
 ## One line per audience
 
