@@ -4,6 +4,20 @@ An end-to-end commercial intelligence system built entirely on free tiers. Inbou
 
 **Built by Jernej Surc** - RevOps / GTM / Revenue Analytics. Demonstrates CRM architecture, workflow automation, production SQL, AI prompt engineering, and BI modeling in one working system.
 
+## The five-minute tour
+
+Evaluating this project? Walk it in this order - each stop is proof of a different skill:
+
+| Stop | Where | What it demonstrates |
+|---|---|---|
+| 1 | [Business scenario](#business-scenario) | Commercial framing: a benchmark-calibrated B2B SaaS pipeline, not random demo rows |
+| 2 | [Architecture](#architecture) → [Live run evidence](#live-run-evidence) | A six-vendor integration that actually ran: AI scored a lead and round-tripped the result into the CRM |
+| 3 | [`analytics_queries.sql`](analytics_queries.sql) + the [Neon shot](#live-run-evidence) | Production SQL - CTEs, window functions, filtered aggregates - answering real pricing, KAM, and velocity questions |
+| 4 | [Power BI dashboard](#power-bi-dashboard-3-pages) | BI modeling: snapshot-anchored DAX, every figure validated cell-by-cell against SQL |
+| 5 | [`BUILD_STORY.md`](BUILD_STORY.md) | How I actually work: 11 real defects caught in live smoke testing, each diagnosed and fixed |
+
+In a hurry? [`EXECUTIVE_SUMMARY.md`](EXECUTIVE_SUMMARY.md) is the 30-second version.
+
 ## Business scenario
 
 The dataset models **Adriatic Analytics**, a fictional Ljubljana-based B2B SaaS vendor selling a pipeline-analytics platform to mid-market tech companies across ten verticals (FinTech, HealthTech, Cybersecurity, DevTools, and others). Pricing runs four tiers, from Starter (€6–18K ACV) to Enterprise (€150–480K ACV). The company moved its GTM tracking off spreadsheets and into HubSpot in **January 2025**; the warehouse holds every account and deal from then through the **FY26 Q2 close** (reporting snapshot: 1 July 2026) - 150 accounts and 248 deals over 18 months.
@@ -46,6 +60,7 @@ Automates lead enrichment with AI (Claude assigns every inbound lead an ICP scor
 | `make_payload_template.json` | Exact JSON contract at every Make.com hop |
 | `make_scenario_blueprint.json` | Importable Make.com scenario blueprint (validated against Make's schema) |
 | `powerbi_measures.dax` | Weighted Pipeline ARR, Avg Days to Close, Expansion Readiness Index, ICP Conversion %, snapshot-anchored open-pipeline aging |
+| `adriatic_theme.json` | Power BI report theme (View → Themes → Browse) |
 | `EXECUTIVE_SUMMARY.md` | One-page project brief for recruiters & hiring managers |
 | `BUILD_STORY.md` | Honest build log: 11 real defects the live smoke test caught, and the fixes |
 | `CLAUDE.md` | Project guidelines for Claude Code |
@@ -83,7 +98,9 @@ Budget: ~6 ops/lead → ~150 leads/month inside the 1,000-op free tier. Note tha
 
 ### Live run evidence
 
-All six modules green on a real contact - one operation each, end to end:
+> All contact records in these screenshots are **synthetic demo data** - names, emails, and companies are fictitious.
+
+All six modules green on a real run - one operation each, end to end:
 
 ![Make scenario - successful end-to-end run](screenshots/make-scenario-run.png)
 
@@ -93,9 +110,17 @@ The Claude scoring module: ICP system prompt with an enforced JSON contract, and
 
 ![Claude module - model and field mapping](screenshots/claude-scoring-module2.png)
 
-And the round trip back into the CRM - the AI's score, outreach hook, and routing decision written onto the contact record (identity redacted):
+The round trip back into the CRM - the AI's score, outreach hook, and routing decision written onto the contact record:
 
 ![HubSpot writeback - score, hook, routing](screenshots/hubspot-ai-writeback2.png)
+
+Every scored lead is also appended to the Google Sheets staging log with its routing decision - the ops-friendly audit trail between the CRM and the warehouse:
+
+![Google Sheets staging log](screenshots/sheets-staging-log.png)
+
+And the warehouse end of the pipe: Query B (KAM expansion readiness) running live in Neon's SQL editor - 22 ranked upsell candidates in 160 ms:
+
+![Neon SQL editor - Query B live results](screenshots/neon-query-b.png)
 
 ## Power BI dashboard (3 pages)
 
