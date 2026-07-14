@@ -31,6 +31,12 @@ Also learned the hard way: a stale Make editor tab silently reverts API-pushed b
 
 Final verified run (2026-07-10): HubSpot contact → Claude Haiku scored **85**, wrote a two-sentence personalized hook → routed **BDR_PRIORITY** → row staged in Google Sheets → inserted into Neon with `employee_count = 100` (from "100-500") and apostrophes intact → score, hook, and routing written back onto the HubSpot contact. Test data then cleaned up: Neon reseeded to exactly 150 accounts / 248 deals with the identical ARR fingerprint (€27,688,910.33), proving the deterministic dataset reproduces bit-for-bit.
 
+The receipts, from a later verification run (Claude is non-deterministic, so each run scores and phrases slightly differently - this one landed at 78, still BDR_PRIORITY):
+
+![All six modules green](screenshots/make-scenario-run.png)
+
+![AI writeback on the contact - full hook text](screenshots/hubspot-ai-writeback1.png)
+
 ## Ops-budget reality check
 
 Design said "~6 ops/lead ≈ 900 ops/month - fits the free tier." Reality: **every empty poll costs 1 op**, so a 15-minute schedule burns ~2,880 ops/month before processing a single lead. The deployed scenario polls every 2 hours (~360/month), leaving real headroom for lead processing. Free-tier architecture is a budget problem, not just a wiring problem.

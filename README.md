@@ -19,14 +19,15 @@ Everything is deterministic (`seed=42`) and anchored to the fixed snapshot date,
 
 ## Architecture
 
-```
-HubSpot CRM (API v3)          Claude API                Google Sheets
-  new lead webhook   ──►  ICP score (0-100) +   ──►   staging + routing
-                          2-sentence BDR hook          rules (BDR/nurture)
-                                                              │
-Power BI Desktop     ◄──  Neon PostgreSQL        ◄────────────┘
-  velocity, win-rate,     accounts_and_leads,          Make.com orchestrates
-  expansion dashboards    commercial_deals             every hop (~6 ops/lead)
+Make.com orchestrates every hop (~6 ops/lead):
+
+```mermaid
+flowchart LR
+    HS["HubSpot CRM<br/>new lead (API v3)"] --> CL["Claude API<br/>ICP score 0-100 + BDR hook"]
+    CL --> GS["Google Sheets<br/>staging log + routing"]
+    GS --> PG[("Neon PostgreSQL<br/>accounts_and_leads<br/>commercial_deals")]
+    PG -. "writeback: score · hook · routing" .-> HS
+    PG --> BI["Power BI<br/>3-page revenue dashboard"]
 ```
 
 Total cost: **€0/month** (HubSpot Free, Make.com 1,000 ops, Neon free serverless, Google Sheets, Power BI Desktop).
@@ -79,6 +80,22 @@ Budget: ~6 ops/lead → ~150 leads/month inside the 1,000-op free tier. Note tha
 - The PostgreSQL connection needs **Encrypt = Yes** (Neon refuses non-SSL) and the module's *"Continue the execution even if no rows"* = Yes, or the route stops after the INSERT and the writeback never runs.
 - Use a dated Claude model ID (`claude-haiku-4-5-20251001`) - Make validates against the connection's model list, which doesn't include aliases.
 - After import, open module 1 once and set **"Choose where to start"** - a polling trigger can't run until its cursor is initialized (this must be done in the UI).
+
+### Live run evidence
+
+All six modules green on a real contact - one operation each, end to end:
+
+![Make scenario - successful end-to-end run](screenshots/make-scenario-run.png)
+
+The Claude scoring module: ICP system prompt with an enforced JSON contract, and live HubSpot field mapping (no hardcoded inputs):
+
+![Claude module - system prompt](screenshots/claude-scoring-module1.png)
+
+![Claude module - model and field mapping](screenshots/claude-scoring-module2.png)
+
+And the round trip back into the CRM - the AI's score, outreach hook, and routing decision written onto the contact record (identity redacted):
+
+![HubSpot writeback - score, hook, routing](screenshots/hubspot-ai-writeback2.png)
 
 ## Power BI dashboard (3 pages)
 
