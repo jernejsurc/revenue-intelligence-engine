@@ -148,3 +148,35 @@ SELECT
 FROM closed
 GROUP BY contract_tier, deal_size_bracket
 ORDER BY contract_tier, deal_size_bracket;
+
+
+-- ------------------------------------------------------------
+-- QUERY D: ICP Score Validation
+-- Does the AI's ICP score actually predict revenue? Win rate by
+-- score band, aligned to the routing thresholds (75 = BDR
+-- priority, 50 = nurture), with lift vs. the overall win rate.
+-- ------------------------------------------------------------
+WITH closed AS (
+    SELECT
+        a.icp_score,
+        d.deal_stage
+    FROM commercial_deals d
+    JOIN accounts_and_leads a ON a.lead_id = d.account_id
+    WHERE d.deal_stage IN ('Closed Won', 'Closed Lost')
+)
+SELECT
+    CASE
+        WHEN icp_score < 50 THEN '1. <50 (disqualify)'
+        WHEN icp_score < 75 THEN '2. 50-74 (nurture)'
+        ELSE                     '3. 75+ (BDR priority)'
+    END AS icp_band,
+    COUNT(*)                                                        AS closed_deals,
+    COUNT(*) FILTER (WHERE deal_stage = 'Closed Won')               AS won,
+    ROUND(100.0 * COUNT(*) FILTER (WHERE deal_stage = 'Closed Won')
+          / COUNT(*), 1)                                            AS win_rate_pct,
+    ROUND((1.0 * COUNT(*) FILTER (WHERE deal_stage = 'Closed Won') / COUNT(*))
+        / (SELECT 1.0 * COUNT(*) FILTER (WHERE deal_stage = 'Closed Won')
+                 / COUNT(*) FROM closed), 2)                        AS lift_vs_overall
+FROM closed
+GROUP BY 1
+ORDER BY 1;

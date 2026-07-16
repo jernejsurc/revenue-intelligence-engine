@@ -18,7 +18,8 @@ Portfolio project by Jernej Surc. A 100% free-tier commercial intelligence syste
 - `CLAUDE.md` - this file (project guidelines)
 - `schema.sql` - DDL for `accounts_and_leads` and `commercial_deals` (Neon PostgreSQL)
 - `seed_data.py` - psycopg v3 seed script; injects 150 realistic B2B SaaS accounts + deals
-- `analytics_queries.sql` - Phase 2: pipeline velocity, KAM expansion readiness, win-rate/tier elasticity
+- `analytics_queries.sql` - Phase 2: pipeline velocity, KAM expansion readiness, win-rate/tier elasticity, ICP score validation (Query D)
+- `scripts/validate_pipeline.py` + `.github/workflows/validate-data.yml` - CI: hermetic Postgres container reseeds and asserts 12 dataset fingerprints on every push; update the expected values there whenever seed logic or queries change
 - `make_payload_template.json` - Phase 3: JSON payloads between HubSpot, Make, Sheets, Neon
 - `make_scenario_blueprint.json` - Phase 3: importable Make.com scenario (Import Blueprint in Make UI; do not run/edit locally). Deployed live as scenario 6507604 (team 1110634, eu1.make.com), smoke-tested end-to-end 2026-07-10, currently deactivated pending HubSpot contact-cap headroom.
 - `powerbi_measures.dax` - Phase 4: Weighted Pipeline ARR, Avg Days to Close, Expansion Readiness Index, ICP Conversion %, Snapshot Date + Avg Days in Pipeline (Open) anchored to the 2026-07-01 snapshot
